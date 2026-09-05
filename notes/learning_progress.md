@@ -21,8 +21,20 @@
 ---
 
 ### Chapter 3: Compiler Basics and How They Map to LLVM APIs
-- **状态**: ⏳ 待学习
-- **重要性**: ⭐⭐⭐⭐⭐
+- **状态**: ✅ 已完成
+- **日期**: 2026-09-05
+- **笔记**: [Chapter 3 Notes](examples/part1_getting_started/ch03_compiler_basics/README.md)
+- **测验**: [Chapter 3 Quiz](examples/part1_getting_started/ch03_compiler_basics/quiz.md)
+- **探索脚本**: [explore_ir_structure.sh](examples/part1_getting_started/ch03_compiler_basics/explore_ir_structure.sh)
+
+**关键收获**:
+1. 编译器术语：Target, Host, Lowering, Canonical Form, ABI, Encoding
+2. 四种基本结构：Module → Function → BasicBlock → Instruction
+3. LLVM IR vs Machine IR 的关键差异（抽象级别、SSA、terminator 约束等）
+4. CFG 核心概念：RPO 遍历、Backedge（循环识别）、Critical Edge（拆分优化）、Irreducible Graph
+5. 在我们的编译链中：.cu/.ll/.bc 是 LLVM IR 级别，.ptx 是 Machine IR 级别，.cubin 是最终编码
+6. LLVMContext 负责 uniquing；LLVM IR BasicBlock 必须有且仅有一个 terminator
+7. 实践观察：O0 有 14 条指令，O2 优化后减少到 11 条
 
 ---
 
@@ -80,7 +92,7 @@ ptxas test.ptx -arch=sm_89 -o test.cubin
 ## 待探索问题
 
 1. NVPTX 后端如何处理 GPU 特有的概念（warp、shared memory）？
-2. LLVM IR 中的 `llvm.nvvm.*` intrinsics 是什么？
+2. ~~LLVM IR 中的 `llvm.nvvm.*` intrinsics 是什么？~~ → 已部分解答：它们是读取 GPU 特殊寄存器的内置函数（ctaid.x=blockIdx, tid.x=threadIdx, ntid.x=blockDim）
 3. PTX 和 SASS 之间有什么关系？
 4. 如何编写自定义的优化 Pass？
 5. TableGen 是如何描述目标机器特性的？

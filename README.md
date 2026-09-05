@@ -47,6 +47,8 @@ llvm-as test.ll -o test.bc
 
 # Step 3: .bc -> .ptx (PTX 汇编)
 llc test.bc -march=nvptx64 -mcpu=sm_89 -filetype=asm -o test.ptx
+# Step 2+3: .ll -> .ptx (PTX 汇编)
+llc test.ll -march=nvptx64 -mcpu=sm_89 -o test.ptx
 
 # Step 4: .ptx -> .cubin (GPU 机器码)
 ptxas test.ptx -arch=sm_89 -o test.cubin
