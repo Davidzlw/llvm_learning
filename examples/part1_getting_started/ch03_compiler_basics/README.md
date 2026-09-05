@@ -421,7 +421,7 @@ test.cubin (GPU 机器码)         ← 最终编码后的二进制
 ## 3.5 实践：在 test.ll 中观察这些概念
 
 ```bash
-cd /Code/cuda_test
+cd /Code/llvm_learning
 
 # 查看 Module 级别信息（头部）
 head -15 test_e2e.ll

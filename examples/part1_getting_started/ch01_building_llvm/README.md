@@ -251,7 +251,7 @@ find llvm/lib/Target/NVPTX -type f
 回顾我们已经成功的编译链：
 
 ```bash
-cd /Code/cuda_test
+cd /Code/llvm_learning
 
 # Step 1: .cu -> .ll
 clang -x cuda --cuda-gpu-arch=sm_89 --cuda-device-only -S -emit-llvm test.cu -o test.ll

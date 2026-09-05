@@ -162,7 +162,7 @@ ls llvm/include/llvm/IR/
 使用我们已有的文件完成以下任务：
 
 ```bash
-cd /Code/cuda_test
+cd /Code/llvm_learning
 
 # 1. 查看 test.ll 的前 30 行
 head -30 test_e2e.ll

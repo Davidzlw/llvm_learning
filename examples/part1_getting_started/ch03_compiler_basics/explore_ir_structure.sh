@@ -4,7 +4,7 @@
 
 set -e
 
-LL_FILE="/Code/cuda_test/test_e2e.ll"
+LL_FILE="/Code/llvm_learning/test_e2e.ll"
 
 if [ ! -f "$LL_FILE" ]; then
     echo "ERROR: $LL_FILE not found. Run compile_cu_to_ll.sh first."
@@ -57,7 +57,7 @@ sed -n '/^define.*helloKernel/,/^}/p' "$LL_FILE"
 echo ""
 
 echo "=== 9. 对比不同优化级别的 IR ==="
-cd /Code/cuda_test
+cd /Code/llvm_learning
 opt -O0 test_e2e.ll -S -o /tmp/test_O0.ll 2>/dev/null
 opt -O2 test_e2e.ll -S -o /tmp/test_O2.ll 2>/dev/null
 echo "O0 指令数: $(grep -c '^\s*%' /tmp/test_O0.ll)"
@@ -66,7 +66,7 @@ echo ""
 
 echo "=== 10. 对比 PTX 中的 Machine IR 概念 ==="
 echo "--- 查看 test_e2e.ptx 中的结构 ---"
-PTX_FILE="/Code/cuda_test/test_e2e.ptx"
+PTX_FILE="/Code/llvm_learning/test_e2e.ptx"
 if [ -f "$PTX_FILE" ]; then
     echo "Functions (.entry/.func):"
     grep -n "\.entry\|\.func" "$PTX_FILE"

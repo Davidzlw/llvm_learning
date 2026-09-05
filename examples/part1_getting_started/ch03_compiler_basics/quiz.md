@@ -146,10 +146,10 @@ Module (模块)
 
 ### 9. 在 test.ll 中识别基本结构
 
-阅读 `/Code/cuda_test/test_e2e.ll`，回答以下问题：
+阅读 `/Code/llvm_learning/test_e2e.ll`，回答以下问题：
 
 ```bash
-cat /Code/cuda_test/test_e2e.ll
+cat /Code/llvm_learning/test_e2e.ll
 ```
 
 a) Module 的 target triple 是什么？

@@ -13,7 +13,7 @@
 ## 项目结构
 
 ```
-/Code/cuda_test/
+/Code/llvm_learning/
 ├── docs/                           # 教程和文档
 │   └── LLVM Code Generation(2025).pdf
 │
