@@ -142,6 +142,24 @@
 
 ---
 
+### Chapter 9: Introducing Target-Specific Constructs
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 9 Notes](examples/part2_middle_end/ch09_target_specific/README.md)
+- **实践脚本**: [explore_target.sh](examples/part2_middle_end/ch09_target_specific/explore_target.sh)
+
+**关键收获**:
+1. **Target 信息流向**：TargetInfo → SubtargetInfo → TargetLowering → TTI → 优化 Pass
+2. **Intrinsic 是桥梁**：连接源语言 → LLVM IR → 后端指令选择
+3. **TTI (TargetTransformInfo) 控制优化方向**：成本模型决定向量化、循环展开等策略
+4. **PassBuilder callbacks**：middle-end 注入点；**TargetPassConfig**：backend 注入点
+5. **MC 层是汇编/机器码接口**：MCAsmInfo, MCSubtargetInfo, MCInstrInfo, MCRegisterInfo
+6. **Data layout 编码 target 信息**：endian、对齐、原生整数宽度等
+7. **NVPTX 注入 14 个自定义 Pass**：地址空间推断、NVVM 反射、参数/alloca 降级等
+8. **不同 target 的自定义 Pass 差异巨大**：x86 有 23 个，AArch64 有 27 个
+
+---
+
 ## 环境信息
 
 - **GPU**: NVIDIA GeForce RTX 4090 D (sm_89)
