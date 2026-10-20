@@ -235,6 +235,86 @@
 
 ---
 
+### Chapter 14: Getting Started with Instruction Selection
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 14 Notes](examples/part4_instruction_selection/ch14_isel_intro/README.md)
+- **实践脚本**: [observe_isel.sh](examples/part4_instruction_selection/ch14_isel_intro/observe_isel.sh)
+- **测试文件**: [test_isel.ll](examples/part4_instruction_selection/ch14_isel_intro/test_isel.ll)
+
+**关键收获**:
+1. **三种指令选择框架**：FastISel（快）、SDISel（好）、GlobalISel（新，模块化）
+2. **指令选择三阶段**：IR Building → Legalization → Selection
+3. **SelectionDAG 是 SDISel 核心**：SDNode（操作）+ SDValue（输出值）
+4. **GlobalISel 使用 Generic MIR**：G_ADD, G_MUL 等通用操作码
+5. **TableGen 生成选择代码**：-gen-dag-isel, -gen-fast-isel, -gen-global-isel
+6. **融合指令是优化关键**：mul+add → mad (NVPTX), lea 替代 add (x86)
+7. **AsmPrinter 连接 MC 层**：MachineInstr → MCInst → 汇编
+8. **TargetPassConfig 注入 Pass**：addInstSelector, addLegalizeMachineIR 等
+9. **新项目推荐 GlobalISel**：可测试性好，架构现代
+
+---
+
+### Chapter 15: Instruction Selection: The IR Building Phase
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 15 Notes](examples/part4_instruction_selection/ch15_isel_ir_building/README.md)
+- **实践脚本**: [observe_abi.sh](examples/part4_instruction_selection/ch15_isel_ir_building/observe_abi.sh)
+- **测试文件**: [test_abi.ll](examples/part4_instruction_selection/ch15_isel_ir_building/test_abi.ll)
+
+**关键收获**:
+1. **IR Building 两阶段**：纯 IR 转换 + ABI Lowering（调用约定实现）
+2. **调用约定是核心**：参数传递、返回值、callee-saved 寄存器
+3. **TableGen 描述调用约定**：CallingConv, CCAction, CalleeSavedRegs
+4. **SDISel 三个方法**：LowerFormalArguments, LowerCall, LowerReturn
+5. **GlobalISel 更模块化**：CallLowering + Assigner + Handler
+6. **CCState 管理状态**：CCValAssign 记录每个参数的位置（寄存器/栈）
+7. **sret 降级大返回值**：结构体返回通过指针参数
+8. **callseq 标记调用边界**：确定栈帧大小
+9. **不同 ABI 差异巨大**：NVPTX 用参数内存（.param），x86_64 用寄存器传参
+
+---
+
+### Chapter 16: Instruction Selection: The Legalization Phase
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 16 Notes](examples/part4_instruction_selection/ch16_isel_legalization/README.md)
+- **实践脚本**: [observe_legalize.sh](examples/part4_instruction_selection/ch16_isel_legalization/observe_legalize.sh)
+- **测试文件**: [test_legalize.ll](examples/part4_instruction_selection/ch16_isel_legalization/test_legalize.ll)
+
+**关键收获**:
+1. **Legalization 两阶段**：类型合法化 → 操作合法化
+2. **SDISel 依赖 Legal Types**：标记合法类型，其余自动处理
+3. **GlobalISel 无 Legal Types**：使用程序化规则（LegalizeRuleSet）精确描述
+4. **9 种合法化动作**：Legal, Promote, Expand, Soften, Scalarize, Split, Widen, LibCall, Custom
+5. **类型提升示例**：i8 → i16 加法 → i32 转换（NVPTX），i8 在 32 位寄存器中操作（x86_64）
+6. **i64 拆分**：NVPTX 将 i64 拆为两个 i32，使用 addc（带进位加）
+7. **向量合法化复杂**：<3 x i8> 打包到 32 位寄存器，使用 SIMD 指令
+8. **浮点操作常需 LibCall**：目标不支持时回退到库函数
+9. **自定义合法化是高级手段**：SDISel 用 LowerOperation，GlobalISel 用 legalizeCustom
+
+---
+
+### Chapter 17: Instruction Selection: The Selection Phase and Beyond
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 17 Notes](examples/part4_instruction_selection/ch17_isel_selection/README.md)
+- **实践脚本**: [observe_selection.sh](examples/part4_instruction_selection/ch17_isel_selection/observe_selection.sh)
+- **测试文件**: [test_selection.ll](examples/part4_instruction_selection/ch17_isel_selection/test_selection.ll)
+
+**关键收获**:
+1. **Selection Phase 是最后阶段**：Generic IR → Target-Specific MachineInstr
+2. **TableGen 模式是核心**：声明式描述指令匹配（Pat, ComplexPattern, SDNodeXForm）
+3. **RegBankSelect 优化拷贝**：减少跨寄存器库转换（GPR↔FPR）
+4. **Custom Inserter 展开伪指令**：处理复杂代码序列（usesCustomInserter = true）
+5. **DAG Combine 优化**：mul+add → mad 融合，地址模式优化
+6. **FinalizeISel 清理**：冻结保留寄存器，准备后续 Pass
+7. **调试用 -debug-only=isel**：查看模式匹配过程和 match table
+8. **SIMD 选择差异大**：x86 用 paddd（真 SIMD），NVPTX 标量化为 4 个标量加法
+9. **复杂地址模式**：x86 用 (base,idx,scale)，NVPTX 显式计算（mul.wide + add）
+
+---
+
 ## 环境信息
 
 - **GPU**: NVIDIA GeForce RTX 4090 D (sm_89)
