@@ -179,6 +179,62 @@
 
 ---
 
+### Chapter 11: Getting Started with the Backend
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 11 Notes](examples/part3_backend_intro/ch11_machine_ir/README.md)
+- **实践脚本**: [observe_mir.sh](examples/part3_backend_intro/ch11_machine_ir/observe_mir.sh)
+- **测试文件**: [test_simple.ll](examples/part3_backend_intro/ch11_machine_ir/test_simple.ll)
+
+**关键收获**:
+1. **Machine IR 是后端核心表示**：连接 LLVM IR 和最终汇编，支持 SSA + non-SSA
+2. **MIR 使用 YAML 格式**：包含 LLVM IR + 寄存器声明 + 栈帧信息 + 指令体
+3. **MachineInstr = 操作数数组 + MCInstrDesc 约束**：MCInstrDesc 定义操作数"契约"
+4. **隐式操作数建模硬件/ABI 约束**：如 x86 eflags、调用约定寄存器
+5. **Tied operands 打破 SSA**：读-写操作必须共享物理寄存器（如 x86 ADD）
+6. **寄存器类定义可用寄存器集合**：NVPTX 有 int32regs，x86 有 gr32/gr64/fr32
+7. **MC 层是汇编级抽象**：MCInst/MCOperand/MCInstrDesc 负责编码和反汇编
+8. **TableGen 生成后端骨架**：gen-register-info, gen-instr-info, gen-subtarget
+9. **llc 控制 Pass 范围**：`-start-after`, `-stop-after`, `-run-pass` 精确定位
+
+---
+
+### Chapter 12: Getting Started with the Machine Code Layer
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 12 Notes](examples/part3_backend_intro/ch12_mc_layer/README.md)
+- **实践脚本**: [explore_mc.sh](examples/part3_backend_intro/ch12_mc_layer/explore_mc.sh)
+
+**关键收获**:
+1. **MC 层是汇编级抽象**：MCInst ↔ 汇编文本 ↔ 字节编码
+2. **TableGen 生成大部分 MC 代码**：printInstruction, getBinaryCodeForInstr
+3. **编码族分组很重要**：提前规划 TableGen 类层次结构（ALU/Mem/Branch 等）
+4. **MCInstPrinter 负责反汇编**：MCInst → 汇编文本
+5. **MCCodeEmitter 负责编码**：MCInst → 字节序列
+6. **MCAsmParser 最复杂**：汇编文本 → MCInst，需大量手动实现
+7. **llvm-mc 是测试利器**：`-show-encoding` 验证汇编编码，`-disassemble` 验证反汇编
+8. **不是所有指令都需要编码**：伪指令（PHI, COPY）仅存在于 Machine 层
+
+---
+
+### Chapter 13: The Machine Pass Pipeline
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 13 Notes](examples/part3_backend_intro/ch13_machine_pass_pipeline/README.md)
+- **实践脚本**: [observe_pipeline.sh](examples/part3_backend_intro/ch13_machine_pass_pipeline/observe_pipeline.sh)
+
+**关键收获**:
+1. **Machine Pipeline 分 5 大阶段**：Pre-ISel → ISel → Post-ISel Pre-RA → RA → Post-RA
+2. **IR 从 SSA 降级到 non-SSA**：寄存器分配是关键转折点
+3. **TargetPassConfig 提供 6+ 注入点**：addPreISel, addPreRegAlloc, addPreEmitPass 等
+4. **不要重写 addMachinePasses()**：使用注入点方法添加自定义 Pass
+5. **通用 Pass 依赖 Target 信息**：TargetLowering, TargetInstrInfo, TargetRegisterInfo
+6. **CodeGenPrepare 优化地址模式**：通过 isLegalAddressingMode 控制
+7. **PeepholeOptimizer vs MachineCombiner**：前者目标无关，后者目标相关
+8. **查看 getRequiredProperties()**：了解 Pass 对 IR 属性的约束
+
+---
+
 ## 环境信息
 
 - **GPU**: NVIDIA GeForce RTX 4090 D (sm_89)
