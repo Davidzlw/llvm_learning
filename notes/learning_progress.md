@@ -84,6 +84,23 @@
 
 ---
 
+### Chapter 6: TableGen – LLVM Swiss Army Knife for Modeling
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 6 Notes](examples/part1_getting_started/ch06_tablegen/README.md)
+- **实践脚本**: [explore_tablegen.sh](examples/part1_getting_started/ch06_tablegen/explore_tablegen.sh)
+- **实践文件**: [person.td](examples/part1_getting_started/ch06_tablegen/person.td), [multiclass_example.td](examples/part1_getting_started/ch06_tablegen/multiclass_example.td)
+
+**关键收获**:
+1. **TableGen 是 LLVM 的声明式建模语言**，将目标机器信息从 C++ 代码中解耦
+2. **核心语法**：`class`（模板）、`def`（实例化）、`multiclass/defm`（批量生成）、`let`（字段覆盖）
+3. **工作流程**：`.td` → `llvm-tblgen` → `.inc` → `#include` 到 LLVM 源码
+4. **所有 LLVM 后端都依赖 TableGen** 描述寄存器、指令、特性、intrinsic 等
+5. **NVPTX 实例**：用 `foreach` 批量生成 SM20~SM90 的 feature records，用 `SubtargetFeature` 描述 GPU 架构
+6. **调试技巧**：先用 `llvm-tblgen file.td`（不带后端）验证前端，再启用具体后端
+
+---
+
 ### Chapter 7: Understanding LLVM IR
 - **状态**: ⏳ 待学习
 - **重要性**: ⭐⭐⭐⭐⭐
@@ -141,7 +158,7 @@ ptxas test.ptx -arch=sm_89 -o test.cubin
 2. ~~LLVM IR 中的 `llvm.nvvm.*` intrinsics 是什么？~~ → 已部分解答：它们是读取 GPU 特殊寄存器的内置函数（ctaid.x=blockIdx, tid.x=threadIdx, ntid.x=blockDim）
 3. PTX 和 SASS 之间有什么关系？
 4. 如何编写自定义的优化 Pass？ → ✅ 已在 Chapter 4 中完成：使用 New Pass Manager 插件 API，继承 PassInfoMixin，通过 llvmGetPassPluginInfo() 注册
-5. TableGen 是如何描述目标机器特性的？
+5. TableGen 是如何描述目标机器特性的？ → ✅ 已在 Chapter 6 中完成：通过 .td 文件中的 class/def/multiclass 定义寄存器、指令、特性等，由 llvm-tblgen 生成 .inc C++ 代码
 
 ## 学习笔记模板
 
