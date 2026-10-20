@@ -315,6 +315,84 @@
 
 ---
 
+### Chapter 18: Instruction Scheduling
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 18 Notes](examples/part5_final_lowering/ch18_scheduling/README.md)
+- **实践脚本**: [observe_schedule.sh](examples/part5_final_lowering/ch18_scheduling/observe_schedule.sh)
+- **测试文件**: [test_schedule.ll](examples/part5_final_lowering/ch18_scheduling/test_schedule.ll)
+
+**关键收获**:
+1. **调度是低级优化**：重新排列指令以提高 ILP（指令级并行）
+2. **DDG 表示依赖**：ScheduleDAGInstrs 管理数据依赖、内存依赖、控制依赖
+3. **Mutation 修改依赖图**：添加/移除约束（如内存操作聚类）
+4. **策略决定顺序**：GenericScheduler 提供启发式算法，可自定义优先级
+5. **调度模型描述资源**：ProcResource（处理单元）、WriteRes（写延迟）、ReadAdvance（转发路径）
+6. **InstRW 推荐**：局部绑定，易于维护，避免全局 SchedWrite/SchedRead
+7. **load 提前 store 延迟**：隐藏内存访问延迟，减少依赖冲突
+8. **指令融合**：mul+add → mad，load+add → 单条指令
+9. **调试用 -view-misched-dags**：图形化查看依赖图
+
+---
+
+### Chapter 19: Register Allocation
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 19 Notes](examples/part5_final_lowering/ch19_regalloc/README.md)
+- **实践脚本**: [observe_regalloc.sh](examples/part5_final_lowering/ch19_regalloc/observe_regalloc.sh)
+- **测试文件**: [test_regalloc.ll](examples/part5_final_lowering/ch19_regalloc/test_regalloc.ll)
+
+**关键收获**:
+1. **目标只需实现 spill hook**：storeRegToStackSlot, loadRegFromStackSlot
+2. **Slot Index 唯一标识指令**：编号 + 阶段（B/E/R/D）
+3. **Live Interval 保持 SSA**：即使 Machine IR 非 SSA，仍用 VNInfo 追踪定义
+4. **VNInfo 记录定义**：支持到达定义分析，phi 节点标记为 `-phi`
+5. **寄存器合并减少 COPY**：Coalescer 在分配前运行
+6. **常量折叠优化**：1+2+...+10 → 55（单条指令）
+7. **Phi 消除**：通过分支或条件移动实现
+8. **NVPTX 寄存器多**：11 个虚拟寄存器无 spill
+9. **x86_64 寄存器少**：高效分配 6 个物理寄存器
+
+---
+
+### Chapter 20: Lowering of the Stack Layout
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 20 Notes](examples/part5_final_lowering/ch20_stack_layout/README.md)
+- **实践脚本**: [observe_stack.sh](examples/part5_final_lowering/ch20_stack_layout/observe_stack.sh)
+- **测试文件**: [test_stack.ll](examples/part5_final_lowering/ch20_stack_layout/test_stack.ll)
+
+**关键收获**:
+1. **栈布局三要素**：TargetFrameLowering、TargetRegisterInfo、PEI
+2. **Prologue/Epilogue**：分配/释放栈空间（subq/addq 栈指针）
+3. **Frame Index 展开**：替换为 SP + offset
+4. **寄存器争夺**：RegScavenger 查找可用寄存器
+5. **Emergency Spill Slot**：无寄存器时溢出到栈
+6. **x86_64 栈向下增长**：subq 分配，addq 释放
+7. **NVPTX 无显式栈**：使用参数内存和寄存器
+8. **优化器消除冗余**：常量折叠、寄存器提升
+
+---
+
+### Chapter 21: Getting Started with the Assembler
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 21 Notes](examples/part5_final_lowering/ch21_assembler/README.md)
+- **实践脚本**: [observe_assembler.sh](examples/part5_final_lowering/ch21_assembler/observe_assembler.sh)
+- **测试文件**: [test_assembler.ll](examples/part5_final_lowering/ch21_assembler/test_assembler.ll)
+
+**关键收获**:
+1. **Assembler 是编译器后端与二进制工具的边界**
+2. **三步流程**：解析 → 编码 → 写入
+3. **Fixup 是未解析的地址引用**：编码时填入占位符
+4. **重定位记录符号引用**：链接器解析最终地址
+5. **MCAsmBackend 处理 fixup 和松弛**
+6. **MCCodeEmitter 编码指令为二进制**
+7. **MCObjectTargetWriter 生成特定格式重定位**
+8. **外部符号产生重定位**：callq func@PLT → R_X86_64_PLT32
+
+---
+
 ## 环境信息
 
 - **GPU**: NVIDIA GeForce RTX 4090 D (sm_89)
