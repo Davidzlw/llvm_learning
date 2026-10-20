@@ -121,6 +121,27 @@
 
 ---
 
+### Chapter 8: Survey of the Existing Passes
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 8 Notes](examples/part2_middle_end/ch08_existing_passes/README.md)
+- **实践文件**: [test_passes.ll](examples/part2_middle_end/ch08_existing_passes/test_passes.ll)
+
+**关键收获**:
+1. **发现 Pass 的方法**：PassRegistry.def → 类名 → 源码文件
+2. **三类 Pass**：辅助（verifier/printer）、规范化（instcombine/mem2reg/lcssa）、优化
+3. **New PM CLI 支持嵌套作用域**：`function(...)`, `module(...)`, `loop(...)`
+4. **Pass 组合产生协同效应**：`mem2reg + instcombine + simplifycfg` 可将 alloca 模式完全折叠为常量
+5. **实践验证**：
+   - `early-cse`: 消除重复的 `add i32 %a, %b`
+   - `deadargelim`: 删除未使用的函数参数
+   - `simplifycfg`: 合并块、消除不可达分支
+   - `reassociate`: `(a+b+2)-b` → `a+2`
+6. **TargetTransformInfo** 是目标相关优化的代价模型接口
+7. **循环 Pass 自动保证 LCSSA 形式**
+
+---
+
 ## 环境信息
 
 - **GPU**: NVIDIA GeForce RTX 4090 D (sm_89)
