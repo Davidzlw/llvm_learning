@@ -38,6 +38,52 @@
 
 ---
 
+### Chapter 4: Writing Your First Optimization Pass
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 4 Notes](examples/part1_getting_started/ch04_first_optimization/README.md)
+- **实践代码**: [const_fold_pass.cpp](examples/part1_getting_started/ch04_first_optimization/const_fold_pass.cpp)
+- **扩展练习**: [const_fold_ext.cpp](examples/part1_getting_started/ch04_first_optimization/const_fold_ext.cpp)
+
+**关键收获**:
+1. **Pass 是 LLVM 编译流水线的构建块**，整个编译过程由一系列 Pass 组成
+2. **Legacy Pass Manager 已在 LLVM 19 中完全移除**，必须使用 New Pass Manager 插件 API
+3. **New Pass Manager 核心模式**：
+   - Pass 类继承 `PassInfoMixin<YourPass>`，实现 `run()` 方法
+   - 返回 `PreservedAnalyses::none()`（有修改）或 `PreservedAnalyses::all()`（无修改）
+   - 通过 `llvmGetPassPluginInfo()` 导出 C 函数注册插件
+4. **编译命令**：`clang++ -shared -fPIC -o Pass.so pass.cpp $(llvm-config --cxxflags --ldflags) -fno-rtti`
+5. **运行命令**：`opt -load-pass-plugin ./Pass.so -passes="pass-name" < input.ll -S`
+6. **实践验证**：
+   - 基础版：支持 add/sub/mul，成功将 `2+3=5, 5*4=20, 20+10=30` 折叠为 `ret i32 30`
+   - 扩展版：新增 shl/lshr/and/or/xor 支持，兼容 i8/i32/i64 等任意位宽
+   - 与内置 `instcombine` 对比，效果一致
+7. **调试技巧**：`-print-after-all` 可查看每个 Pass 后的 IR 变化
+
+---
+
+### Chapter 5: Dealing with Pass Managers
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 5 Notes](examples/part1_getting_started/ch05_pass_managers/README.md)
+- **实践脚本**: [observe_pipeline.sh](examples/part1_getting_started/ch05_pass_managers/observe_pipeline.sh)
+- **测试文件**: [test_pipeline.ll](examples/part1_getting_started/ch05_pass_managers/test_pipeline.ll)
+
+**关键收获**:
+1. **Pass Manager 是编译流水线的调度器**，负责 Pass 执行顺序、分析缓存、作用域切换
+2. **New Pass Manager 使用按需计算 + 缓存机制**，分析结果在作用域内被复用，失效时自动重新计算
+3. **`PreservedAnalyses` 精确描述 Pass 对分析的影响**，避免不必要的重新计算
+4. **scope-preserving 结构**是推荐的流水线组织方式：IR 尽可能深地推入当前作用域
+5. **关键调试工具**：
+   - `-debug-pass-manager`: 显示 Pass 执行和分析计算日志
+   - `-time-passes`: Pass 执行时间报告
+   - `-print-after-all`: 每个 Pass 后打印 IR
+   - `-print-pipeline-passes`: 导出 Pass 流水线列表
+6. **O2 流水线包含 271 个 Pass**，InstCombine 占比最高（33%），是最核心的优化 Pass
+7. **Legacy PM vs New PM**：Legacy 仍用于后端，中端已完全迁移到 New PM
+
+---
+
 ### Chapter 7: Understanding LLVM IR
 - **状态**: ⏳ 待学习
 - **重要性**: ⭐⭐⭐⭐⭐
@@ -94,7 +140,7 @@ ptxas test.ptx -arch=sm_89 -o test.cubin
 1. NVPTX 后端如何处理 GPU 特有的概念（warp、shared memory）？
 2. ~~LLVM IR 中的 `llvm.nvvm.*` intrinsics 是什么？~~ → 已部分解答：它们是读取 GPU 特殊寄存器的内置函数（ctaid.x=blockIdx, tid.x=threadIdx, ntid.x=blockDim）
 3. PTX 和 SASS 之间有什么关系？
-4. 如何编写自定义的优化 Pass？
+4. 如何编写自定义的优化 Pass？ → ✅ 已在 Chapter 4 中完成：使用 New Pass Manager 插件 API，继承 PassInfoMixin，通过 llvmGetPassPluginInfo() 注册
 5. TableGen 是如何描述目标机器特性的？
 
 ## 学习笔记模板

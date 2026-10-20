@@ -15,18 +15,11 @@ fi
 echo "LLVM 版本: $(llvm-config --version)"
 echo ""
 
-# 编译 Pass
+# 编译 Pass (New Pass Manager 插件)
 echo ">>> 编译 Pass..."
 clang++ -shared -fPIC -o ConstFoldPass.so const_fold_pass.cpp \
-    $(llvm-config --cxxflags --ldflags --libs core support) \
-    -Wno-pass-failed 2>/dev/null
-
-if [ $? -ne 0 ]; then
-    echo "编译失败，尝试使用不同的 LLVM 配置..."
-    clang++ -shared -fPIC -o ConstFoldPass.so const_fold_pass.cpp \
-        $(llvm-config --cxxflags --ldflags --libs) \
-        -Wno-pass-failed
-fi
+    $(llvm-config --cxxflags --ldflags) \
+    -fno-rtti 2>&1
 
 if [ ! -f ConstFoldPass.so ]; then
     echo "错误: 编译失败"
@@ -43,10 +36,10 @@ cat test_input.ll
 echo "----------------------------------------"
 echo ""
 
-# 运行 Pass
+# 运行 Pass (New Pass Manager)
 echo ">>> 运行常量折叠 Pass..."
 echo "----------------------------------------"
-opt -load ./ConstFoldPass.so -const-fold < test_input.ll -S 2>&1
+opt -load-pass-plugin ./ConstFoldPass.so -passes="const-fold" < test_input.ll -S 2>&1
 echo "----------------------------------------"
 echo ""
 

@@ -1,23 +1,20 @@
-// 第4章实践：编写第一个优化 Pass
-// 编译: clang++ -shared -fPIC -o ConstFoldPass.so const_fold_pass.cpp $(llvm-config --cxxflags --ldflags --libs core support)
-// 运行: opt -load ./ConstFoldPass.so -const-fold < test_input.ll -S
+// 第4章实践：编写第一个优化 Pass (New Pass Manager 版本)
+// 编译: clang++ -shared -fPIC -o ConstFoldPass.so const_fold_pass.cpp $(llvm-config --cxxflags --ldflags) -fno-rtti
+// 运行: opt -load-pass-plugin ./ConstFoldPass.so -passes="const-fold" < test_input.ll -S
 
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/Constants.h"
-#include "llvm/Pass.h"
+#include "llvm/IR/PassManager.h"
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "llvm/Transforms/IPO/PassManagerBuilder.h"
 
 using namespace llvm;
 
 namespace {
-struct ConstFoldPass : public FunctionPass {
-    static char ID;
-    ConstFoldPass() : FunctionPass(ID) {}
-
-    bool runOnFunction(Function &F) override {
+struct ConstFoldPass : public PassInfoMixin<ConstFoldPass> {
+    PreservedAnalyses run(Function &F, FunctionAnalysisManager &) {
         bool Changed = false;
         
         errs() << "Running ConstFoldPass on function: " << F.getName() << "\n";
@@ -37,7 +34,7 @@ struct ConstFoldPass : public FunctionPass {
             }
         }
         
-        return Changed;
+        return Changed ? PreservedAnalyses::none() : PreservedAnalyses::all();
     }
 
 private:
@@ -81,12 +78,19 @@ private:
 };
 }
 
-char ConstFoldPass::ID = 0;
-
-// 注册 Pass
-static RegisterPass<ConstFoldPass> X(
-    "const-fold",                    // 命令行参数: opt -const-fold
-    "Simple Constant Folding Pass",  // 描述
-    false,                           // 是否只查看 CFG
-    false                            // 是否是分析 Pass
-);
+// 注册插件 (New Pass Manager)
+extern "C" LLVM_ATTRIBUTE_WEAK PassPluginLibraryInfo
+llvmGetPassPluginInfo() {
+    return {LLVM_PLUGIN_API_VERSION, "ConstFoldPass", "1.0",
+            [](PassBuilder &PB) {
+                PB.registerPipelineParsingCallback(
+                    [](StringRef Name, FunctionPassManager &FPM,
+                       ArrayRef<PassBuilder::PipelineElement>) {
+                        if (Name == "const-fold") {
+                            FPM.addPass(ConstFoldPass());
+                            return true;
+                        }
+                        return false;
+                    });
+            }};
+}
