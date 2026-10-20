@@ -160,6 +160,25 @@
 
 ---
 
+### Chapter 10: Hands-On Debugging LLVM IR Passes
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 10 Notes](examples/part2_middle_end/ch10_debugging/README.md)
+- **实践脚本**: [debug_passes.sh](examples/part2_middle_end/ch10_debugging/debug_passes.sh)
+- **测试文件**: [test_debug.ll](examples/part2_middle_end/ch10_debugging/test_debug.ll), [test_reduce.ll](examples/part2_middle_end/ch10_debugging/test_reduce.ll)
+
+**关键收获**:
+1. **IR 中间输出**：`-print-after-all` / `-print-before=<pass>` 跟踪每个 Pass 的效果
+2. **opt-bisect-limit 是二分神器**：快速定位引入 bug 的具体 Pass
+3. **llvm-reduce 自动缩减**：通过多轮迭代将测试用例缩减到最小（3 函数 → 1 声明）
+4. **llvm-extract 提取子集**：自动处理依赖，提取函数/基本块为独立模块
+5. **verify-each 保证正确性**：每个 Pass 后验证 IR 合法性
+6. **dump() 方法 + LLDB**：在调试器中直接查看 LLVM 对象（需 assertions-enabled 构建）
+7. **debug-only 需要 assertions-enabled**：系统 LLVM 通常不支持，需自行构建
+8. **Sanitizers 深度排查**：address/memory/thread/undefined behavior 等运行时检测
+
+---
+
 ## 环境信息
 
 - **GPU**: NVIDIA GeForce RTX 4090 D (sm_89)
@@ -197,6 +216,9 @@ ptxas test.ptx -arch=sm_89 -o test.cubin
 - `opt`: LLVM IR 优化器
 - `llc`: 后端代码生成器
 - `llvm-as/llvm-dis`: IR 汇编/反汇编
+- `llvm-extract`: 提取函数/基本块
+- `llvm-reduce`: 自动缩减测试用例
+- `bugpoint`: 传统缩减工具（LLVM 19 仍可用）
 
 ## 学习资源
 
