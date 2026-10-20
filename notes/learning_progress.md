@@ -102,8 +102,22 @@
 ---
 
 ### Chapter 7: Understanding LLVM IR
-- **状态**: ⏳ 待学习
-- **重要性**: ⭐⭐⭐⭐⭐
+- **状态**: ✅ 已完成
+- **日期**: 2026-10-20
+- **笔记**: [Chapter 7 Notes](examples/part2_middle_end/ch07_llvm_ir/README.md)
+- **实践脚本**: [explore_ir.sh](examples/part2_middle_end/ch07_llvm_ir/explore_ir.sh)
+- **实践文件**: [test_ir_basics.c](examples/part2_middle_end/ch07_llvm_ir/test_ir_basics.c)
+
+**关键收获**:
+1. **LLVM IR 四种结构层次**：Module → Function → BasicBlock → Instruction
+2. **类型系统**：单值类型（整数/浮点/指针/向量）、label 类型、聚合类型（结构体/数组）
+3. **SSA 形式**：每个值只被定义一次，phi 指令处理控制流合并点
+4. **mem2reg 是关键 Pass**：将 O0 的 alloca/load/store 模式提升为 SSA 寄存器
+5. **intrinsic 函数**：通用（`llvm.vector.reduce.add`）和目标特定（`llvm.nvvm.read.ptx.sreg.*`）
+6. **LLVM IR 不是可移植格式**——triple、data layout、ABI 都是 target-specific
+7. **bitcode 向后兼容，文本 IR 不保证**——版本迁移用 bitcode 做中间格式
+8. **O2 优化效果**：代数化简、if-conversion（分支→select）、循环消除（闭式公式）、向量化
+9. **隐式编号是陷阱**——手动编辑 IR 前先用 instnamer 命名所有变量
 
 ---
 
